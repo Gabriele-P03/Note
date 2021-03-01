@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#777777"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <Button
+        android:id="@+id/addNoteButton"
+        android:backgroundTint="#777777"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:text="AGGIUNGI NOTA"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+    <ImageView
+        android:layout_marginTop="2dp"
+        android:id="@+id/addNoteIV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/settings"
+        android:elevation="2dp"
+        app:layout_constraintLeft_toLeftOf="@id/addNoteButton"
+        app:layout_constraintTop_toTopOf="@id/addNoteButton"
+        app:layout_constraintBottom_toBottomOf="@id/addNoteButton"/>
+
+
+    <Button
+        android:id="@+id/settingsButton"
+        android:backgroundTint="#777777"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:text="IMPOSTAZIONI"
+
+        app:layout_constraintTop_toBottomOf="@id/addNoteButton"
+        app:layout_constraintLeft_toLeftOf="parent"
+        />
+    <ImageView
+        android:layout_marginTop="2dp"
+        android:id="@+id/settingsIV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/settings"
+        android:elevation="2dp"
+        app:layout_constraintLeft_toLeftOf="@id/settingsButton"
+        app:layout_constraintTop_toTopOf="@id/settingsButton"
+        app:layout_constraintBottom_toBottomOf="@id/settingsButton"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
