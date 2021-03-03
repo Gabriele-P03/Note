@@ -1,6 +1,5 @@
 package com.note.note;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -12,16 +11,25 @@ import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-
 import com.note.R;
-import com.note.utils.FileUtils;
-
 import java.io.File;
 import java.util.ArrayList;
 
+/**
+ * Custom List Adapter
+ *
+ * This one contains the information of any nota, showing them onto the main layout.
+ *
+ * R.layout#list_view_with_button is inflated, with its delete button, user can delete
+ * the relative note . Notice that notification cannot be eliminated
+ *
+ * @see com.note.MainActivity or README on gitHub
+ *
+ * @see R.layout#list_view_with_button
+ */
 public class ListNoteAdapter extends BaseAdapter implements ListAdapter {
 
-    private ArrayList<Nota> arrayList = new ArrayList<>();
+    private ArrayList<Nota> arrayList;
     private Context context;
 
     public ListNoteAdapter(ArrayList<Nota> arrayList, Context context) {
@@ -62,6 +70,11 @@ public class ListNoteAdapter extends BaseAdapter implements ListAdapter {
             View popupView = layoutInflater.inflate(R.layout.delete_popup_window, parent, false);
 
             Button decline = popupView.findViewById(R.id.deleteDeclineButton);
+
+            /**
+             * In order to allow the user to  delete any note voluntarily,
+             * a confirming popup window will appear
+             */
             PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
 
             Button agreed = popupView.findViewById(R.id.deleteAgreeButton);
@@ -76,6 +89,8 @@ public class ListNoteAdapter extends BaseAdapter implements ListAdapter {
 
                 arrayList.remove(position);
                 popupWindow.dismiss();
+
+                //Update the list view to show the new note without needing to restart the application
                 this.notifyDataSetChanged();
             });
 
@@ -85,8 +100,6 @@ public class ListNoteAdapter extends BaseAdapter implements ListAdapter {
 
             popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
         });
-
-
 
         return view;
     }

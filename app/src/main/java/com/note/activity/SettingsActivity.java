@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.note.R;
 
+/**
+ * Still no settings available
+ */
 public class SettingsActivity extends AppCompatActivity{
 
     @Override

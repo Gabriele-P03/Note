@@ -33,7 +33,7 @@
     <View
         android:id="@+id/divider"
         style="@style/Divider"
-        app:layout_constraintTop_toBottomOf="@id/deleteNote"
+        app:layout_constraintTop_toBottomOf="@id/list_item"
         app:layout_constraintLeft_toLeftOf="parent"
         android:background="@color/white"/>
 

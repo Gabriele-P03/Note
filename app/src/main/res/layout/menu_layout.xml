@@ -19,7 +19,7 @@
         android:id="@+id/addNoteIV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/settings"
+        android:src="@mipmap/add"
         android:elevation="2dp"
         app:layout_constraintLeft_toLeftOf="@id/addNoteButton"
         app:layout_constraintTop_toTopOf="@id/addNoteButton"

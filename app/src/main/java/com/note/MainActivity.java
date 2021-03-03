@@ -7,6 +7,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,32 +24,48 @@ import com.note.activity.NoteActivity;
 import com.note.activity.SettingsActivity;
 import com.note.note.ListNoteAdapter;
 import com.note.note.Nota;
-import com.note.notification.NotificationWorker;
 import com.note.utils.FileUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Main Activity class
+ * Here you are a To-Do application
  *
- * This app let you take note of everything you have to do.
- *
- * These ones are grouped into a list view organized by time:
- * The first one is the next one you have to do
+ * These ones are showed onto a list view organized by time:
+ * The first one is the next you have to do
  *
  *
+ * To add a new note, click on "Add Note" on the popup window.
+ *
+ * Notice that notification and note is created every time you
+ * click on "Save Note", so even if you delete it from
+ * the list view, the notification will be NOT eliminated and you
+ * will received it the same!
+ *
+ *
+ * Note are saved on a text file called as "DD-MM-YY@HH:MM",
+ * so you can create only one note at a given date and time.
+ *
+ * If you create twice, the last one will only be considered.
+ * Notice that, as said above, notification is set every time you
+ * create a new note and cannot be deleted, so you will receive
+ * notification about both
+ *
+ * Why I chose to not allow deleting notification via button click?
+ * 'Cause when the notification is pushed, maybe you cannot look at
+ * the phone, so you gonna do it later
  *
  * @gitHub
  * @author GABRIELE-P03
  */
 public class MainActivity extends AppCompatActivity {
 
-    private LinearLayout thisLayout;
     private static ImageButton showMenuButton;
     private static ListView listNote;
 
@@ -64,15 +81,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //loadAutoStart();
-        loadScreenSize();
         loadComponents();
         try {
             loadNotes();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         createNotificationChannel();
     }
@@ -83,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
         showMenuButton = findViewById(R.id.showMenuButton);
         showMenuButton.setOnClickListener( v -> inflateMenu());
         listNote = findViewById(R.id.listNote);
-
     }
 
     /**
@@ -108,35 +121,18 @@ public class MainActivity extends AppCompatActivity {
          */
         View viewDivider = findViewById(R.id.divider);
         offsetY = showMenuButton.getTop() + showMenuButton.getHeight() + viewDivider.getTop() + viewDivider.getHeight();
-        Y = thisLayout.getMeasuredHeight();
+        Y = findViewById(R.id.main_layout).getMeasuredHeight();
 
         final PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, Y-offsetY, true);
         popupWindow.showAtLocation(popupView, Gravity.NO_GRAVITY, 0, offsetY);
     }
 
     /**
-     * Get the screen real size and subtracts the title's bar's size
-     * Then the params' layout are set to the right width and height
-     */
-    public static int newX;
-    public static int newY;
-    @RequiresApi(api = Build.VERSION_CODES.R)
-    private void loadScreenSize() {
-        Point point = new Point();
-        thisLayout = findViewById(R.id.main_layout);
-        getWindowManager().getDefaultDisplay().getRealSize(point);
-
-        ViewGroup.LayoutParams tmp = thisLayout.getLayoutParams();
-
-        newX  = point.x - (point.x - tmp.width);
-        newY = point.y - (point.y - tmp.height);
-
-        thisLayout.getLayoutParams().height = newY;
-        thisLayout.getLayoutParams().width = newX;
-    }
-
-    /**
-     * Method called to read all notes and set them into list view
+     * Method called to read all notes from the directory of application
+     * and set them onto list view
+     *
+     * They're sorted by name, notice that name represents date and time,
+     * so the array is organized by time, as said below the class
      */
     private void loadNotes() throws IOException {
 
@@ -144,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
 
         File dir = FileUtils.getDir(getApplicationContext(), "");
         File files[] = dir.listFiles();
-        File orderFiles[] = new File[files.length];
         Arrays.sort(files, 0 , files.length);
 
         for (File file : files){
@@ -152,7 +147,6 @@ public class MainActivity extends AppCompatActivity {
             BufferedReader bufferedReader = FileUtils.getBufferedReader(getApplicationContext(), file.getName());
             String tmp;
             String date = bufferedReader.readLine(), time = bufferedReader.readLine(), title = bufferedReader.readLine(), note = "";
-
 
             while( (tmp = bufferedReader.readLine()) != null){
                 note += tmp;;
@@ -177,13 +171,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Since Android O (API 26), a channel for notifications
+     * must be set to the Notification Manager
+     *
+     * For more details see its doc
+     */
     private void createNotificationChannel(){
-
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             CharSequence name = "NoteChannel";
             String description = "Channel for Note notification";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel("note", name, importance);
+
+            channel.enableLights(true);
+            channel.setLightColor(Color.RED);
+            channel.enableVibration(true);
+            channel.setVibrationPattern(new long[]{200, 100, 200, 100, 200, 100, 200});
             channel.setDescription(description);
 
             NotificationManager notificationManager = getSystemService(NotificationManager.class);

@@ -2,11 +2,9 @@ package com.note.activity;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
@@ -19,8 +17,13 @@ import com.note.notification.NotificationWorker;
 import com.note.utils.FileUtils;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
-
+/**
+ * This class represents NoteActivity.
+ *
+ * Instanced when "Add Note" button is clicked
+ */
 public class NoteActivity extends AppCompatActivity {
 
     private EditText note;
@@ -57,15 +60,16 @@ public class NoteActivity extends AppCompatActivity {
     /**
      * Called when save note button is clicked
      *
-     * To affors the ordering by name, it will add '0' if day/month is less than 0:
+     * To affords the ordering by name, it will add '0' if day/month is less than 0:
      * 01 != 0, it will check if 0 < 0...
+     * @see Nota#Nota(DatePicker, TimePicker, String)
      *
      * @throws IOException
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void saveNote() throws IOException {
 
-        Nota nota = new Nota(this.calendarView, this.timePicker);
+        Nota nota = new Nota(this.calendarView, this.timePicker, note.getText().toString());
 
         String fileName = nota.getDate() + "@" + nota.getTime() + ".txt";
 
@@ -75,21 +79,36 @@ public class NoteActivity extends AppCompatActivity {
         bufferedWriter.flush();
         bufferedWriter.close();
 
+
         setNewNotification(nota);
     }
 
+    /**
+     * Schedule the new notification delayed as the difference
+     * between the current date in millis and the notification's
+     * @see Nota#getDelay()
+     *
+     * Passes to the constructor of NotficationWorker, called by builder,
+     * date, time, title and description about @nota
+     *
+     * @param nota
+     */
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void setNewNotification(Nota nota){
-        Intent intent = new Intent(this, NotificationWorker.class);
-        intent.putExtra("date", nota.getDate());
-        intent.putExtra("time", nota.getTime());
-        intent.putExtra("title", nota.getTitle());
-        intent.putExtra("note", nota.getNote());
 
+        WorkManager workManager = WorkManager.getInstance(this);
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(NotificationWorker.class)
+                .setInitialDelay(nota.getDelay(), TimeUnit.MILLISECONDS)
+                .setInputData(new Data.Builder()
+                        .putString("date", nota.getDate())
+                        .putString("time", nota.getTime())
+                        .putString("title", nota.getTitle())
+                        .putString("description", nota.getNote()).build())
+                .build();
 
+        workManager.enqueue(request);
 
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, nota.getDelay(), pendingIntent);
     }
+
 }
