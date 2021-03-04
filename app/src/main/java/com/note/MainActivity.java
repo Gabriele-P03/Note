@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Current Build 1.0.0
+ *
  * Doc below is the same as Readme.md
  *
  * Here you are a To-Do application
@@ -63,7 +65,7 @@ import java.util.concurrent.TimeUnit;
  * 'Cause when the notification is pushed, maybe you cannot look at
  * the phone, so you gonna do it later
  *
- * @gitHub
+ * @gitHub https://github.com/Gabriele-P03/Note
  * @author GABRIELE-P03
  */
 public class MainActivity extends AppCompatActivity {
