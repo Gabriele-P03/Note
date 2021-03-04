@@ -1,5 +1,7 @@
 package com.note.note;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -11,6 +13,8 @@ import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.note.R;
 import java.io.File;
 import java.util.ArrayList;
@@ -62,6 +66,15 @@ public class ListNoteAdapter extends BaseAdapter implements ListAdapter {
 
         TextView textView = view.findViewById(R.id.list_item);
         textView.setText(arrayList.get(position).toString());
+
+        //When user click on a text view, text will be saved into clipboard
+        textView.setOnClickListener( v -> {
+            ClipboardManager clipboardManager = (ClipboardManager)context.getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clipData = ClipData.newPlainText("Note clipboard", textView.getText().toString());
+            clipboardManager.setPrimaryClip(clipData);
+            Toast.makeText(context, "Testo copiato negli appunti", Toast.LENGTH_SHORT).show();
+        });
+
         ImageButton deleteButton = view.findViewById(R.id.deleteNote);
 
         deleteButton.setOnClickListener( v -> {

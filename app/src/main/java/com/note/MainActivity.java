@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Doc below is the same as Readme.md
+ *
  * Here you are a To-Do application
  *
  * These ones are showed onto a list view organized by time:
