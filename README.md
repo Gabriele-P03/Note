@@ -16,8 +16,8 @@
  
  * Note is saved on a text file called as "DD-MM-YY@HH:MM",
    so you can create only one note at a given date and time.
- 
- * If you create twice, the last one will only be considered.
+   
+   So if you create twice, the last one will only be considered.
    Notice that, as said above, notification is set every time you
    create a new note and cannot be deleted, so you will receive
    notification about both
