@@ -5,6 +5,8 @@
 
  * Notes are showed onto a list view organized by time:
    The first one is the next you have to do
+   
+ * User can copy a note as text clicking on it
  
  
  * Notice that notification and note is created every time you
