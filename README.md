@@ -1,6 +1,8 @@
 ![alt text](https://github.com/Gabriele-P03/Note/blob/master/app/src/main/res/mipmap-hdpi/logo.png "# Note")
 # A To-Do Android Application
 
+ * To add a new note, click on "New Note" showed on the menu
+
  * Notes are showed onto a list view organized by time:
    The first one is the next you have to do
  
