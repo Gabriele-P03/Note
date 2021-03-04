@@ -7,8 +7,6 @@
    The first one is the next you have to do
  
  
- * To add a new note, click on "Add Note" on the popup window.
- 
  * Notice that notification and note is created every time you
    click on "Save Note", so even if you delete it from
    the list view, the notification will be NOT eliminated!
