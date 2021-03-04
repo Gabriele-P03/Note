@@ -1,4 +1,4 @@
-# Note
+# Note ![alt text](https://github.com/Gabriele-P03/Note/blob/master/app/src/main/res/mipmap-hdpi/logo.png)
 # A To-Do Android Application
 
  * Notes are showed onto a list view organized by time:
