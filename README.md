@@ -27,3 +27,5 @@
    the phone, so you gonna do it later
    
  * Still no settings available. 
+
+ # For features, read last version's readme 
