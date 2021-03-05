@@ -15,6 +15,8 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.work.WorkManager;
+
 import com.note.R;
 import java.io.File;
 import java.util.ArrayList;
@@ -97,10 +99,17 @@ public class ListNoteAdapter extends BaseAdapter implements ListAdapter {
                 File file = new File(context.getFilesDir(),
                         arrayList.get(position).date + "@" + arrayList.get(position).time + ".txt");
 
+
+
+                arrayList.remove(position);
+
+                //Removing scheduled notification
+                removeNotificationScheduled(file.getName(), this.context);
+
+                //Removing file
                 if(file.exists())
                     file.delete();
 
-                arrayList.remove(position);
                 popupWindow.dismiss();
 
                 //Update the list view to show the new note without needing to restart the application
@@ -115,6 +124,12 @@ public class ListNoteAdapter extends BaseAdapter implements ListAdapter {
         });
 
         return view;
+    }
+
+    public static void removeNotificationScheduled(String fileName, Context context) {
+
+        WorkManager workManager = WorkManager.getInstance(context);
+        workManager.cancelAllWorkByTag(fileName);
     }
 
 }

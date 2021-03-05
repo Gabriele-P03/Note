@@ -2,13 +2,14 @@ package com.note;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import android.app.AlarmManager;
+
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Point;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -17,22 +18,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import com.note.activity.NoteActivity;
 import com.note.activity.SettingsActivity;
 import com.note.note.ListNoteAdapter;
 import com.note.note.Nota;
+import com.note.notification.NotificationWorker;
 import com.note.utils.FileUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Current Build 1.0.0
@@ -92,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        createNotificationChannel();
+        NotificationWorker.createNotificationChannel(getApplicationContext());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -172,30 +170,6 @@ public class MainActivity extends AppCompatActivity {
             loadNotes();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    /**
-     * Since Android O (API 26), a channel for notifications
-     * must be set to the Notification Manager
-     *
-     * For more details see its doc
-     */
-    private void createNotificationChannel(){
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            CharSequence name = "NoteChannel";
-            String description = "Channel for Note notification";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("note", name, importance);
-
-            channel.enableLights(true);
-            channel.setLightColor(Color.RED);
-            channel.enableVibration(true);
-            channel.setVibrationPattern(new long[]{200, 100, 200, 100, 200, 100, 200});
-            channel.setDescription(description);
-
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
         }
     }
 

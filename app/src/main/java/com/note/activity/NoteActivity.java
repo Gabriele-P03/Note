@@ -11,11 +11,15 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
 import com.note.R;
+import com.note.note.ListNoteAdapter;
 import com.note.note.Nota;
 import com.note.notification.NotificationWorker;
 import com.note.utils.FileUtils;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -73,42 +77,26 @@ public class NoteActivity extends AppCompatActivity {
 
         String fileName = nota.getDate() + "@" + nota.getTime() + ".txt";
 
+        File file = new File(getApplicationContext().getFilesDir(), fileName);
+
+        if(!file.exists()){
+            file.createNewFile();
+        }else{
+            ListNoteAdapter.removeNotificationScheduled(fileName, getApplicationContext());
+            Toast.makeText(getApplicationContext(), "Attività già istanziata. La sto cancellando...", Toast.LENGTH_LONG).show();
+        }
+
         BufferedWriter bufferedWriter = FileUtils.getBufferedWriter(getApplicationContext(), fileName);
         bufferedWriter.write(nota.getDate() + "\n" + nota.getTime() + "\n");
         bufferedWriter.write(this.note.getText().toString());
         bufferedWriter.flush();
         bufferedWriter.close();
 
+        Toast.makeText(getApplicationContext(), "Attività schedulata correttamente", Toast.LENGTH_SHORT).show();
 
-        setNewNotification(nota);
+        NotificationWorker.setNewNotification(nota, getApplicationContext());
     }
 
-    /**
-     * Schedule the new notification delayed as the difference
-     * between the current date in millis and the notification's
-     * @see Nota#getDelay()
-     *
-     * Passes to the constructor of NotficationWorker, called by builder,
-     * date, time, title and description about @nota
-     *
-     * @param nota
-     */
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void setNewNotification(Nota nota){
 
-        WorkManager workManager = WorkManager.getInstance(this);
-
-        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(NotificationWorker.class)
-                .setInitialDelay(nota.getDelay(), TimeUnit.MILLISECONDS)
-                .setInputData(new Data.Builder()
-                        .putString("date", nota.getDate())
-                        .putString("time", nota.getTime())
-                        .putString("title", nota.getTitle())
-                        .putString("description", nota.getNote()).build())
-                .build();
-
-        workManager.enqueue(request);
-
-    }
 
 }
