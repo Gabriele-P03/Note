@@ -7,8 +7,8 @@
  ### Features of 1.0.1:
  
  * Now scheduled notification can be deleted:
-   1)Via delete button (with the relative note)
-   2)When you instance a new note  
+   1. Via delete button (with the relative note)
+   2. When you instance a new note  
  
  * Notification ringtone available
    
