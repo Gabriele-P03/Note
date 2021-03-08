@@ -4,12 +4,12 @@
  ### Read master's README file to understand the achieve of this application  
  
  
- ### Features of 1.0.1:
+ ### Features of 1.0.2:
  
- * Now scheduled notification can be deleted:
-     - Via delete button (with the relative note)
-     - When you instance a new note  
- 
- * Notification ringtone available
+ * New Main UI. The old one is still available via "Your Note"
+
+ * Now you can check your startup permission via menu->permissions
+
+ * Now you can see app and mine informations via menu->info
    
  * Still no settings available. 
