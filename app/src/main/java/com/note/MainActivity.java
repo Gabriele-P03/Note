@@ -3,15 +3,16 @@ package com.note;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Intent;
-import android.graphics.Color;
-import android.media.AudioAttributes;
-import android.media.RingtoneManager;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.Settings;
+import android.system.Os;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,9 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.TextView;
+
+import com.note.activity.ListViewActivity;
 import com.note.activity.NoteActivity;
 import com.note.activity.SettingsActivity;
 import com.note.note.ListNoteAdapter;
@@ -31,6 +35,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * Current Build 1.0.0
@@ -68,10 +74,11 @@ import java.util.Arrays;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private static ImageButton showMenuButton;
-    private static ListView listNote;
+    private ImageButton showMenuButton;
+    public static ListNoteAdapter listNoteAdapter;
 
-    public ListNoteAdapter listNoteAdapter;
+    private TextView titleNote, descriptionNote, scheduledTime;
+
 
     //The first one contains the offset between start of display and the one of the layout
     //The second one the height of this activity's layout
@@ -81,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_layout);
 
         loadComponents();
         try {
@@ -90,27 +97,36 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        loadNextNote();
+
         NotificationWorker.createNotificationChannel(getApplicationContext());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void loadComponents() {
 
         showMenuButton = findViewById(R.id.showMenuButton);
         showMenuButton.setOnClickListener( v -> inflateMenu());
-        listNote = findViewById(R.id.listNote);
+
+        titleNote = findViewById(R.id.titleMain);
+        descriptionNote = findViewById(R.id.descriptionMain);
+        scheduledTime = findViewById(R.id.timeScheduled);
     }
 
     /**
      * Menu Popup Window, inflated when the menu button is clicked
      * It is inflated bottom of the divider
      */
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void inflateMenu() {
         LayoutInflater layoutInflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = layoutInflater.inflate(R.layout.menu_layout, null);
 
         Button settingButton = popupView.findViewById(R.id.settingsButton);
         settingButton.setOnClickListener( v -> startActivity(new Intent(this, SettingsActivity.class)));
+
+        Button listButton = popupView.findViewById(R.id.listButton);
+        listButton.setOnClickListener( v -> startActivity(new Intent(this, ListViewActivity.class)));
 
         Button noteButton = popupView.findViewById(R.id.addNoteButton);
         noteButton.setOnClickListener( v -> startActivity(new Intent(this, NoteActivity.class)));
@@ -121,12 +137,12 @@ public class MainActivity extends AppCompatActivity {
          *
          * @see activity_main.xml - divider
          */
-        View viewDivider = findViewById(R.id.divider);
+        View viewDivider = findViewById(R.id.dividerMain);
         offsetY = showMenuButton.getTop() + showMenuButton.getHeight() + viewDivider.getTop() + viewDivider.getHeight();
         Y = findViewById(R.id.main_layout).getMeasuredHeight();
 
-        final PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, Y-offsetY, true);
-        popupWindow.showAtLocation(popupView, Gravity.NO_GRAVITY, 0, offsetY);
+        final PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, Y, true);
+        popupWindow.showAsDropDown(popupView, 0, offsetY, Gravity.CENTER);
     }
 
     /**
@@ -159,7 +175,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         listNoteAdapter = new ListNoteAdapter(arrayList, getApplicationContext());
-        listNote.setAdapter(listNoteAdapter);
+    }
+
+    /**
+     * Method called to set the information, about the next note,
+     * to the main view
+     */
+    private void loadNextNote(){
+        if(listNoteAdapter.getCount() > 0){
+            Nota nota = (Nota)listNoteAdapter.getItem(0);
+
+            titleNote.setText(nota.getTitle());
+            descriptionNote.setText(nota.getNote());
+            scheduledTime.setText(nota.getDate() + " alle " + nota.getTime());
+
+        }
     }
 
 
@@ -171,6 +201,54 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        loadNextNote();
     }
 
+
+    /**
+     * Called when user clicks on Permission button.
+     * Fire the permission manager to check if the
+     * app can push notification even if it isn't running
+     * @param v
+     */
+    public void checkPermissions(View v){
+
+        Intent intent = new Intent();
+        String manufacturer = Build.MANUFACTURER;
+
+        if ("xiaomi".equalsIgnoreCase(manufacturer)) {
+            intent.setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+        } else if ("oppo".equalsIgnoreCase(manufacturer)) {
+            intent.setComponent(new ComponentName("com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity"));
+        } else if ("vivo".equalsIgnoreCase(manufacturer)) {
+            intent.setComponent(new ComponentName("com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"));
+        } else if ("Letv".equalsIgnoreCase(manufacturer)) {
+            intent.setComponent(new ComponentName("com.letv.android.letvsafe", "com.letv.android.letvsafe.AutobootManageActivity"));
+        } else if ("Honor".equalsIgnoreCase(manufacturer) || "Huawei".equalsIgnoreCase(manufacturer)) {
+            intent.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
+        }else if("Samsung".equalsIgnoreCase(manufacturer)){
+            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.N)
+                intent.setComponent(new ComponentName("com.samsung.android.lool", "com.samsung.android.sm.ui.battery.BatteryActivity"));
+            else
+                intent.setComponent(new ComponentName("com.samsung.android.sm", "com.samsung.android.sm.ui.battery.BatteryActivity"));
+        }
+
+        List<ResolveInfo> list = getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        if  (list.size() > 0) {
+            startActivity(intent);
+        }
+    }
+
+    /**
+     * Called on Information button click.
+     * Shows information about the author and the application
+     * @param v
+     */
+    public void showInfo(View v){
+        LayoutInflater layoutInflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = layoutInflater.inflate(R.layout.info_layout, null);
+        final PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.showAtLocation(popupView, Gravity.CENTER, 0 ,0);
+    }
 }

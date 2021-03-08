@@ -11,12 +11,12 @@ public class Nota {
     String date, time, title, note;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    public Nota(DatePicker datePicker, TimePicker timePicker, String note){
+    public Nota(DatePicker datePicker, TimePicker timePicker, String note) {
 
         String tmp = "";
 
         //Adding '0' if day is less than 10
-        if(datePicker.getDayOfMonth() < 10)
+        if (datePicker.getDayOfMonth() < 10)
             tmp = "0";
         tmp += String.valueOf(datePicker.getDayOfMonth());
         this.date = tmp + "-";
@@ -25,9 +25,9 @@ public class Nota {
         tmp = "";
 
         //Adding '0' if month is less than 10
-        if(datePicker.getMonth() < 10)
+        if (datePicker.getMonth() < 10)
             tmp = "0";
-        tmp += String.valueOf(datePicker.getMonth()+1);
+        tmp += String.valueOf(datePicker.getMonth() + 1);
         this.date += tmp + "-";
 
 
@@ -35,13 +35,18 @@ public class Nota {
 
         //Adding '0' if hour is less than 10
         int hour = timePicker.getHour();
-        tmp = (hour < 10 ? "0"+ hour : String.valueOf(hour));
+        tmp = (hour < 10 ? "0" + hour : String.valueOf(hour));
 
         this.time = tmp + ":" + timePicker.getMinute();
 
-        int divider = note.indexOf("\n");
-        this.title = note.substring(0, divider);
-        this.note = note.substring(divider+1);
+        try {
+            int divider = note.indexOf("\n");
+            this.title = note.substring(0, divider);
+            this.note = note.substring(divider + 1);
+
+        }catch (Exception ignore){
+
+        }
     }
 
     public Nota(String date, String time, String title, String note){
@@ -84,7 +89,13 @@ public class Nota {
      * @return
      */
     public long getDelay(){
+        return getLongScheduled() - Calendar.getInstance().getTimeInMillis();
+    }
 
+    /**
+     * @return the date of the note as long
+     */
+    public long getLongScheduled(){
         int year = Integer.parseInt(date.substring(6)),
                 month = Integer.parseInt(date.substring(3, 5)),
                 day = Integer.parseInt(date.substring(0, 2)),
@@ -94,10 +105,6 @@ public class Nota {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month-1, day, hour, minutes);
 
-
-        long delay = calendar.getTimeInMillis();
-        long current = Calendar.getInstance().getTimeInMillis();
-        long trigger = delay-current;
-        return trigger;
+        return calendar.getTimeInMillis();
     }
 }

@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.note.MainActivity;
 import com.note.R;
 import com.note.note.ListNoteAdapter;
 import com.note.note.Nota;
@@ -96,7 +97,4 @@ public class NoteActivity extends AppCompatActivity {
 
         NotificationWorker.setNewNotification(nota, getApplicationContext());
     }
-
-
-
 }
